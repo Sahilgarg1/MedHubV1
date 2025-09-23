@@ -1,0 +1,67 @@
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_APP_NAME: string
+  readonly VITE_APP_VERSION: string
+  readonly VITE_APP_DESCRIPTION: string
+  readonly VITE_API_URL: string
+  readonly VITE_API_TIMEOUT: string
+  readonly VITE_API_RETRY_ATTEMPTS: string
+  readonly VITE_API_ENABLE_LOGGING: string
+  readonly VITE_API_ENABLE_INTERCEPTORS: string
+  readonly VITE_THEME_PRIMARY: string
+  readonly VITE_THEME_SECONDARY: string
+  readonly VITE_THEME_ACCENT: string
+  readonly VITE_THEME_SUCCESS: string
+  readonly VITE_THEME_WARNING: string
+  readonly VITE_THEME_ERROR: string
+  readonly VITE_THEME_INFO: string
+  readonly VITE_BREAKPOINT_SM: string
+  readonly VITE_BREAKPOINT_MD: string
+  readonly VITE_BREAKPOINT_LG: string
+  readonly VITE_BREAKPOINT_XL: string
+  readonly VITE_ANIMATION_DURATION_FAST: string
+  readonly VITE_ANIMATION_DURATION_NORMAL: string
+  readonly VITE_ANIMATION_DURATION_SLOW: string
+  readonly VITE_ANIMATIONS_ENABLED: string
+  readonly VITE_UI_DEBOUNCE_DELAY: string
+  readonly VITE_UI_TOAST_DURATION: string
+  readonly VITE_UI_MODAL_Z_INDEX: string
+  readonly VITE_UI_DROPDOWN_Z_INDEX: string
+  readonly VITE_MAX_FILE_SIZE_MB: string
+  readonly VITE_SUPPORTED_FILE_TYPES: string
+  readonly VITE_ALLOWED_MIME_TYPES: string
+  readonly VITE_DEFAULT_PAGE_SIZE: string
+  readonly VITE_MAX_PAGE_SIZE: string
+  readonly VITE_SEARCH_DEBOUNCE_DELAY: string
+  readonly VITE_SEARCH_MIN_LENGTH: string
+  readonly VITE_SEARCH_MAX_RESULTS: string
+  readonly VITE_DISCOUNT_BUFFER: string
+  readonly VITE_DISCOUNT_MIN: string
+  readonly VITE_DISCOUNT_MAX: string
+  readonly VITE_FEATURE_INVENTORY_UPLOAD: string
+  readonly VITE_FEATURE_REAL_TIME_UPDATES: string
+  readonly VITE_FEATURE_ADVANCED_SEARCH: string
+  readonly VITE_FEATURE_BULK_OPERATIONS: string
+  readonly VITE_FEATURE_SMS_AUTH: string
+  readonly VITE_FEATURE_FILE_COMPRESSION: string
+  readonly VITE_FEATURE_DARK_MODE: string
+  readonly VITE_OTP_LENGTH: string
+  readonly VITE_OTP_EXPIRATION_MINUTES: string
+  readonly VITE_OTP_COOLDOWN_SECONDS: string
+  readonly VITE_SESSION_TIMEOUT_MINUTES: string
+  readonly VITE_SESSION_WARNING_MINUTES: string
+  readonly VITE_STORAGE_AUTH_TOKEN_KEY: string
+  readonly VITE_STORAGE_USER_DATA_KEY: string
+  readonly VITE_STORAGE_THEME_KEY: string
+  readonly VITE_STORAGE_LANGUAGE_KEY: string
+  readonly VITE_STORAGE_CART_KEY: string
+  readonly VITE_DEBUG_MODE: string
+  readonly VITE_REACT_QUERY_DEVTOOLS: string
+  readonly VITE_PERFORMANCE_MONITORING: string
+  readonly VITE_MOCK_API_RESPONSES: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

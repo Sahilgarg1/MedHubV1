@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String        @id @default(cuid())
+  phone                     String        @unique
+  businessName              String
+  isWholesaler              Boolean       @default(false)
+  address                   String
+  addresses                 Json          @default("[]")
+  defaultAddressIndex       Int           @default(0) @map("default_address_index")
+  pickupPoint               String?
+  email                     String?
+  contactNumber             String?
+  licenseNumber             String?
+  gstNumber                 String?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  bids                      Bid[]
+  bidRequests               BidRequest[]
+  cart                      Cart[]
+  ordersAsRetailer          Order[]       @relation("RetailerOrders")
+  bucketsAsRetailer         OrderBucket[] @relation("RetailerBuckets")
+  bucketsAsWholesaler       OrderBucket[] @relation("WholesalerBuckets")
+}
+
+model Product {
+  id              Int          @id @default(autoincrement())
+  product_name    String       @map("product_name")
+  manufacturer    String
+  mrp             Float?
+  distributors    Int[]        @default([])
+  normalized_name String?
+  class           String?      @default("D")
+  bidRequests     BidRequest[]
+  cart            Cart[]
+  orders          Order[]
+
+  @@index([product_name])
+  @@index([manufacturer])
+  @@index([class])
+  @@index([normalized_name], map: "product_normalized_name_btree")
+}
+
+model Margin {
+  id     Int    @id @default(autoincrement())
+  class  String @unique
+  margin Float
+
+  @@index([class])
+}
+
+model UnidentifiedP {
+  id               Int      @id @default(autoincrement())
+  uploaded_at      DateTime @default(now()) @map("uploaded_at")
+  distributor_id   Int      @map("distributor_id")
+  raw_product_name String   @map("raw_product_name")
+  raw_manufacturer String   @map("raw_manufacturer")
+
+  @@index([distributor_id])
+  @@index([uploaded_at])
+  @@map("UnidentifiedP")
+}
+
+model BidRequest {
+  id         String        @id @default(cuid())
+  quantity   Int
+  status     RequestStatus @default(ACTIVE)
+  retailerId String
+  productId  Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  bids       Bid[]
+  product    Product       @relation(fields: [productId], references: [id])
+  retailer   User          @relation(fields: [retailerId], references: [id])
+}
+
+model Bid {
+  id              String     @id @default(cuid())
+  status          BidStatus  @default(PENDING)
+  wholesalerId    String
+  bidRequestId    String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  discountPercent Float
+  finalPrice      Float
+  mrp             Float
+  expiry          DateTime?
+  isCustomBid     Boolean    @default(false)
+  bidRequest      BidRequest @relation(fields: [bidRequestId], references: [id])
+  wholesaler      User       @relation(fields: [wholesalerId], references: [id])
+  order           Order?
+}
+
+model OrderBucket {
+  id           String      @id @default(cuid())
+  retailerId   String
+  wholesalerId String
+  status       OrderStatus @default(PENDING_FULFILLMENT)
+  totalPrice   Float
+  totalItems   Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  orders       Order[]
+  retailer     User        @relation("RetailerBuckets", fields: [retailerId], references: [id])
+  wholesaler   User        @relation("WholesalerBuckets", fields: [wholesalerId], references: [id])
+}
+
+model Order {
+  id              String       @id @default(cuid())
+  quantity        Int
+  totalPrice      Float
+  status          OrderStatus  @default(PENDING_FULFILLMENT)
+  retailerId      String
+  wholesalerId    String
+  productId       Int
+  bidId           String       @unique
+  pickupPoint     String?
+  bucketId        String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  discountPercent Float
+  mrp             Decimal      @db.Decimal(10, 2)
+  bid             Bid          @relation(fields: [bidId], references: [id])
+  bucket          OrderBucket? @relation(fields: [bucketId], references: [id])
+  product         Product      @relation(fields: [productId], references: [id])
+  retailer        User         @relation("RetailerOrders", fields: [retailerId], references: [id])
+}
+
+model Cart {
+  id        String   @id @default(cuid())
+  quantity  Int
+  userId    String
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+model SupportContact {
+  id         String   @id @db.VarChar(50)
+  name       String   @db.VarChar(255)
+  phone      String   @db.VarChar(20)
+  email      String?  @db.VarChar(255)
+  department String   @db.VarChar(100)
+  isPrimary  Boolean  @default(false) @map("is_primary")
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("support_contacts")
+}
+
+model BusinessConfig {
+  id          String   @id @db.VarChar(50)
+  category    String   @db.VarChar(100)
+  key         String   @db.VarChar(100)
+  valueInt    Int?     @map("value_int")
+  valueFloat  Decimal? @map("value_float") @db.Decimal(10, 2)
+  valueString String?  @map("value_string")
+  valueBool   Boolean? @map("value_bool")
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, key])
+  @@map("business_config")
+}
+
+model PickupPoint {
+  id          String   @id @db.VarChar(50)
+  name        String   @db.VarChar(255)
+  address     String
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("pickup_points")
+}
+
+model ValidationRule {
+  id           String   @id @db.VarChar(50)
+  fieldType    String   @map("field_type") @db.VarChar(50)
+  ruleName     String   @map("rule_name") @db.VarChar(100)
+  ruleValue    Json     @map("rule_value")
+  errorMessage String?  @map("error_message")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("validation_rules")
+}
+
+model SystemMessage {
+  id          String   @id @db.VarChar(50)
+  messageType String   @map("message_type") @db.VarChar(50)
+  messageKey  String   @map("message_key") @db.VarChar(100)
+  messageText String   @map("message_text")
+  language    String   @default("en") @db.VarChar(10)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([messageType, messageKey, language])
+  @@map("system_messages")
+}
+
+enum RequestStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING_FULFILLMENT
+  FULFILLED
+  CANCELLED
+}

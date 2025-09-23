@@ -1,0 +1,21 @@
+﻿# dependencies
+client/node_modules/
+server/node_modules/
+
+# build artifacts
+client/dist/
+server/dist/
+
+# env and secrets
+client/.env
+server/.env
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Prisma local state (if any)
+server/prisma/*.db
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
