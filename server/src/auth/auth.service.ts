@@ -4,38 +4,48 @@ import { InitiateAuthDto } from './dto/initiate-auth.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { RegisterDto } from './dto/register.dto'; // Import the new DTO
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import {SnsService} from "../common/services/sns.service";
+import {OtpService} from "../common/services/otp.service";
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+      private prisma: PrismaService,
+      private snsService: SnsService,
+      private otpService: OtpService
+  ) {}
 
   async initiateAuthentication(initiateAuthDto: InitiateAuthDto) {
     // Mock OTP logic
-    const otp = '123456';
-    console.log(
-      `OTP for ${initiateAuthDto.phone} is: ${otp}. (This is a mock OTP)`,
-    );
-    return { message: 'OTP has been sent successfully.' };
+    try {
+      // Generate OTP
+      const otp = await this.otpService.createOTP(initiateAuthDto.phone);
+
+      // Send SMS via AWS SNS
+      const smsSent = await this.snsService.sendOTP(initiateAuthDto.phone, otp);
+
+      if (!smsSent) {
+        throw new Error('Failed to send SMS');
+      }
+
+      return { message: 'OTP has been sent successfully.' };
+    } catch (error) {
+      console.error('Failed to initiate authentication:', error);
+      throw new Error('Failed to send OTP. Please try again.');
+    }
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto) {
-    console.log('🔍 OTP Verification Debug:', {
-      receivedOtp: verifyOtpDto.otp,
-      expectedOtp: '123456',
-      phone: verifyOtpDto.phone,
-      otpMatch: verifyOtpDto.otp === '123456'
-    });
-    
-    if (verifyOtpDto.otp !== '123456') {
-      console.log('❌ OTP Mismatch - returning failure');
-      return { success: false, message: 'Invalid OTP.' };
+    const verification = await this.otpService.verifyOTP(verifyOtpDto.phone, verifyOtpDto.otp);
+    if (!verification.valid) {
+      return { success: false, message: verification.message };
     }
-    
+
     console.log('✅ OTP Match - looking up user in database');
     const user = await this.prisma.user.findUnique({
       where: { phone: verifyOtpDto.phone },
     });
-    
+
     console.log('👤 User lookup result:', { user: user ? 'found' : 'not found' });
 
     if (user) {
