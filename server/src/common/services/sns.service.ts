@@ -4,8 +4,8 @@ import { SMS } from '@vonage/messages';
 // import { AppConfigService } from './app-config.service'; // Assuming you have this service
 
 @Injectable()
-export class SmsService {
-  private readonly logger = new Logger(SmsService.name);
+export class SnsService {
+  private readonly logger = new Logger(SnsService.name);
   private vonage: Vonage;
 
   constructor() {
@@ -28,14 +28,11 @@ export class SmsService {
     await this.vonage.sms.send({to, from, text})
         .then(resp => { console.log('Message sent successfully'); console.log(resp); return true;})
         .catch(err => { console.log('There was an error sending the messages.'); console.error(err); return false;});
+
+        return true;
   }
 
-  // Optional: A helper function to format phone numbers if needed, though Vonage is flexible.
-  private formatPhoneNumber(phoneNumber: string): string {
-    // Your formatting logic here, e.g., ensuring it's in E.164 format.
-    // For now, we'll assume the input is correct.
-    return phoneNumber;
-  }
+  // Optional: A helper function to format phone numbers if needed, though Vonage is flexible
 
   async sendOTP(phoneNumber: string, otp: string): Promise<boolean> {
     const message = `Your TradeMed verification code is: ${otp}. This code will expire in 10 minutes. Do not share this code with anyone.`;

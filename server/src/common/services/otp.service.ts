@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface OtpData {
@@ -34,7 +34,7 @@ export class OtpService {
 
     // Store in memory (in production, consider using Redis)
     this.otpStorage.set(phone, otpData);
-
+    Logger.log("storage set")
     // Also store in database for persistence
     await this.prisma.otpSession.upsert({
       where: { phone },
@@ -51,6 +51,7 @@ export class OtpService {
         attempts: 0,
       },
     });
+    Logger.log("storage set 2")
 
     return otp;
   }

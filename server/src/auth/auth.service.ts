@@ -4,7 +4,8 @@ import { InitiateAuthDto } from './dto/initiate-auth.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { RegisterDto } from './dto/register.dto'; // Import the new DTO
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import {SnsService} from "../common/services/sns.service";
+import { SnsService } from "../common/services/sns.service";
+import { Logger } from '@nestjs/common';
 import {OtpService} from "../common/services/otp.service";
 
 @Injectable()
@@ -19,9 +20,11 @@ export class AuthService {
     // Mock OTP logic
     try {
       // Generate OTP
+      Logger.log('Generating OTP');
       const otp = await this.otpService.createOTP(initiateAuthDto.phone);
 
       // Send SMS via AWS SNS
+      Logger.log('Sending OTP');
       const smsSent = await this.snsService.sendOTP(initiateAuthDto.phone, otp);
 
       if (!smsSent) {
