@@ -566,7 +566,7 @@ export const RetailerBidsView = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cartDropdownRef.current && !cartDropdownRef.current.contains(event.target as Node) &&
           cartButtonRef.current && !cartButtonRef.current.contains(event.target as Node)) {
-        setIsCartExpanded(false);
+        //setIsCartExpanded(false);
       }
     };
 
@@ -1035,9 +1035,9 @@ export const RetailerBidsView = () => {
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
                     // Auto-collapse cart when user types in search bar
-                    if (isCartExpanded) {
-                      setIsCartExpanded(false);
-                    }
+                    // if (isCartExpanded) {
+                    //   setIsCartExpanded(false);
+                    // }
                   }}
                   onFocus={handleSearchFocus}
                   onBlur={handleSearchBlur}
